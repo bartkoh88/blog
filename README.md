@@ -1,3 +1,20 @@
+# AI Workflow Lab
+
+This repository powers [blog.bartkoh.com](https://blog.bartkoh.com).
+
+## Production Flow
+
+- Static MDX posts live in `data/blog` and are deployed by Vercel from GitHub.
+- Cloud-generated posts live in Supabase and are rendered at `/cloud-blog`.
+- Vercel Cron calls `/api/cron/generate` every day at `21:00 UTC` (`06:00 KST`).
+- The cron route writes a new approved article to Supabase using server-only environment variables.
+- Required Vercel Production environment variables:
+  - `SUPABASE_URL`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `CRON_SECRET`
+
+Local fallback automation lives at `C:\dev\ai-content-revenue`.
+
 ![tailwind-nextjs-banner](/public/static/images/twitter-card.png)
 
 # Tailwind Nextjs Starter Blog
