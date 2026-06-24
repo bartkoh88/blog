@@ -28,6 +28,10 @@ type TopicPlan = {
   cta: string
 }
 
+type ChatCompletionResponse = {
+  choices?: Array<{ message?: { content?: string } }>
+}
+
 const TOPIC_PLANS: TopicPlan[] = [
   {
     keyword: 'ChatGPT 업무 자동화 프롬프트',
@@ -309,9 +313,71 @@ function buildBody(topic: TopicPlan) {
   ].join('\n')
 }
 
+async function generateLlmBody(topic: TopicPlan) {
+  const apiKey = process.env.CONTENT_LLM_API_KEY || process.env.OPENAI_API_KEY
+  const model = process.env.CONTENT_LLM_MODEL || process.env.OPENAI_MODEL || 'gpt-4.1-mini'
+  const baseUrl = (process.env.CONTENT_LLM_BASE_URL || 'https://api.openai.com/v1').replace(
+    /\/$/,
+    ''
+  )
+
+  if (!apiKey) {
+    return ''
+  }
+
+  const prompt = [
+    '한국어 블로그 글을 작성하십시오.',
+    '조건:',
+    '- AI가 만든 티가 나는 일반론을 피하고, 실제 운영자가 쓴 것처럼 구체적으로 씁니다.',
+    '- 과장된 수익 보장, 광고 클릭 유도, 확인되지 않은 수치를 쓰지 않습니다.',
+    '- 검색 의도, 실제 문제, 실행 순서, 실패 패턴, 체크리스트, FAQ, 수익화 관점 섹션을 모두 포함합니다.',
+    '- Markdown으로 작성하고 제목은 H1 하나만 사용합니다.',
+    '- 2500자 이상으로 작성합니다.',
+    '',
+    `제목: ${topic.title}`,
+    `키워드: ${topic.keyword}`,
+    `검색 의도: ${topic.intent}`,
+    `독자: ${topic.audience}`,
+    `문제: ${topic.painPoints.join(' / ')}`,
+    `실행 순서: ${topic.workflow.join(' / ')}`,
+    `도구 후보: ${topic.toolCandidates.join(', ')}`,
+    `실패 패턴: ${topic.pitfalls.join(' / ')}`,
+    `CTA: ${topic.cta}`,
+  ].join('\n')
+
+  try {
+    const response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a senior Korean editor writing helpful, people-first AI workflow articles.',
+          },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.55,
+      }),
+    })
+    if (!response.ok) {
+      return ''
+    }
+    const data = (await response.json()) as ChatCompletionResponse
+    return data.choices?.[0]?.message?.content?.trim() || ''
+  } catch {
+    return ''
+  }
+}
+
 function scoreArticle(body: string) {
   let score = 0
-  if (body.length >= 3000) score += 25
+  if (body.length >= 2400) score += 25
   if (body.includes('검색 의도')) score += 15
   if (body.includes('실패하기 쉬운 패턴')) score += 15
   if (body.includes('체크리스트')) score += 15
@@ -393,9 +459,9 @@ export async function generateCloudArticle() {
     status: 'drafted',
   })
 
-  const body = buildBody(topic)
+  const body = (await generateLlmBody(topic)) || buildBody(topic)
   const qualityScore = scoreArticle(body)
-  const articleStatus = qualityScore >= 80 ? 'approved' : 'draft'
+  const articleStatus = qualityScore >= 75 ? 'approved' : 'draft'
   const article = await insertRow<CloudArticle>('articles', {
     id: await nextId('articles'),
     brief_id: brief.id,
