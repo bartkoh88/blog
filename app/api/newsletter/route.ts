@@ -3,9 +3,17 @@ import siteMetadata from '@/data/siteMetadata'
 
 export const dynamic = 'force-static'
 
-const handler = NewsletterAPI({
-  // @ts-ignore
-  provider: siteMetadata.newsletter.provider,
-})
+const provider = siteMetadata.newsletter?.provider
+const handler = provider
+  ? NewsletterAPI({
+      // @ts-ignore
+      provider,
+    })
+  : undefined
 
-export { handler as GET, handler as POST }
+function disabled() {
+  return Response.json({ error: 'Newsletter is disabled.' }, { status: 404 })
+}
+
+export const GET = handler || disabled
+export const POST = handler || disabled
