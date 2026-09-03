@@ -10,6 +10,11 @@ export type CloudArticle = {
   created_at: string
 }
 
+export type CloudArticleSitemapEntry = {
+  slug: string
+  created_at: string
+}
+
 type SupabaseEnv = {
   url: string
   key: string
@@ -407,13 +412,25 @@ export async function listCloudArticles(): Promise<CloudArticle[]> {
   return supabaseFetch<CloudArticle[]>(`articles?${params}`)
 }
 
+export async function listCloudArticleSitemapEntries(): Promise<CloudArticleSitemapEntry[]> {
+  const params = new URLSearchParams({
+    select: 'slug,created_at',
+    status: 'eq.approved',
+    order: 'created_at.desc',
+    limit: '200',
+  })
+  return supabaseFetch<CloudArticleSitemapEntry[]>(`articles?${params}`)
+}
+
 export async function getCloudArticle(slug: string): Promise<CloudArticle | null> {
-  return findBy<CloudArticle>(
-    'articles',
-    'slug',
-    slug,
-    'id,title,slug,meta_description,body_markdown,status,created_at'
-  )
+  const params = new URLSearchParams({
+    select: 'id,title,slug,meta_description,body_markdown,status,created_at',
+    slug: `eq.${slug}`,
+    status: 'eq.approved',
+    limit: '1',
+  })
+  const rows = await supabaseFetch<CloudArticle[]>(`articles?${params}`)
+  return rows[0] || null
 }
 
 export async function generateCloudArticle() {

@@ -1,18 +1,19 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'AI Workflow Lab',
+  title: 'Bart Koh Blog',
   author: 'Bart Koh',
-  headerTitle: 'AI Workflow Lab',
-  description: 'AI tools, workflow automation, and practical software guides for solo operators.',
+  headerTitle: 'Bart Koh Blog',
+  description:
+    '비개발자 CEO가 AI, 업무 자동화, 지식관리, 웹 제품 제작을 실제 사업에 적용하며 기록하는 블로그입니다.',
   language: 'ko-kr',
   theme: 'system', // system, dark or light
   siteUrl: 'https://blog.bartkoh.com',
-  siteRepo: 'https://github.com/gsspboy/bartkoh-blog',
+  siteRepo: 'https://github.com/bartkoh88/blog',
   siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.png`,
   socialBanner: `${process.env.BASE_PATH || ''}/static/images/twitter-card.png`,
   mastodon: '',
   email: '',
-  github: 'https://github.com/gsspboy',
+  github: 'https://github.com/bartkoh88',
   x: '',
   // twitter: 'https://twitter.com/Twitter',
   facebook: '',

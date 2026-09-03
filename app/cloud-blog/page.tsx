@@ -1,7 +1,16 @@
 import Link from '@/components/Link'
 import { listCloudArticles } from '@/lib/supabaseContent'
+import { genPageMetadata } from '../seo'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata = genPageMetadata({
+  title: 'Cloud Blog',
+  description: 'AI, 업무 자동화, 지식관리, 웹 제품 제작에 관한 검수 완료 동적 글 목록입니다.',
+  alternates: {
+    canonical: '/cloud-blog',
+  },
+})
 
 export default async function CloudBlogPage() {
   const posts = await listCloudArticles()

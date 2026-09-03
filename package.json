@@ -8,6 +8,9 @@
     "build": "cross-env INIT_CWD=. next build && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
+    "content:draft": "node ./scripts/content-engine/generate-draft.mjs",
+    "content:preview": "node ./scripts/content-engine/preview-draft.mjs",
+    "content:serve": "node ./scripts/content-engine/serve-preview.mjs",
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
     "prepare": "husky"
   },

@@ -1,10 +1,11 @@
 import { MetadataRoute } from 'next'
 import { allBlogs } from 'contentlayer/generated'
 import siteMetadata from '@/data/siteMetadata'
+import { listCloudArticleSitemapEntries } from '@/lib/supabaseContent'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = siteMetadata.siteUrl
 
   const blogRoutes = allBlogs
@@ -14,10 +15,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: post.lastmod || post.date,
     }))
 
-  const routes = ['', 'blog', 'projects', 'tags'].map((route) => ({
+  let cloudBlogRoutes: MetadataRoute.Sitemap = []
+  try {
+    const cloudArticles = await listCloudArticleSitemapEntries()
+    cloudBlogRoutes = cloudArticles.map((post) => ({
+      url: `${siteUrl}/cloud-blog/${post.slug}`,
+      lastModified: post.created_at,
+    }))
+  } catch {
+    cloudBlogRoutes = []
+  }
+
+  const routes = ['', 'blog', 'cloud-blog', 'projects', 'tags'].map((route) => ({
     url: `${siteUrl}/${route}`,
     lastModified: new Date().toISOString().split('T')[0],
   }))
 
-  return [...routes, ...blogRoutes]
+  return [...routes, ...blogRoutes, ...cloudBlogRoutes]
 }
