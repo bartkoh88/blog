@@ -1,8 +1,8 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Bart Koh Blog',
-  author: 'Bart Koh',
-  headerTitle: 'Bart Koh Blog',
+  title: 'bartkoh Blog',
+  author: 'bartkoh',
+  headerTitle: 'bartkoh Blog',
   description:
     '비개발자 CEO가 AI, 업무 자동화, 지식관리, 웹 제품 제작을 실제 사업에 적용하며 기록하는 블로그입니다.',
   language: 'ko-kr',
